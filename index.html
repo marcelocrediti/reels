@@ -203,11 +203,13 @@ function marcar(id) {
   usados.add(id); Store.gravar([...usados]); limite = 24; render();
 }
 function desmarcar(id) {
-  usados.delete(id); Store.gravar([...usados]); render();
+  usados.delete(id); Store.gravar([...usados]);
+  if (aba === 'usados' && usados.size === 0) aba = 'ativos';
+  render();
 }
 function zerar() {
   if (!confirm('Isso devolve todos os Reels usados para a fila de ativos. Continuar?')) return;
-  usados = new Set(); Store.gravar([]); render();
+  usados = new Set(); Store.gravar([]); aba = 'ativos'; window.scrollTo(0, 0); render();
 }
 
 function corTom(t) {
@@ -301,6 +303,7 @@ function render() {
   $('#progresso').textContent = `${usados.size} de ${REELS.length} gravados (${pct}%)`;
   $('#abaAtivos').className = 'inline-flex h-9 items-center rounded-full px-4 text-[12px] font-bold transition-colors ' + (aba === 'ativos' ? 'bg-[#0A2540] text-white' : 'bg-white border border-[#E5EAF1] text-[#0A2540]');
   $('#abaUsados').className = 'inline-flex h-9 items-center rounded-full px-4 text-[12px] font-bold transition-colors ' + (aba === 'usados' ? 'bg-[#0A2540] text-white' : 'bg-white border border-[#E5EAF1] text-[#0A2540]');
+  $('#abaAtivos').textContent = aba === 'usados' ? `\u2190 Ativos (${ativos})` : `Ativos (${ativos})`;
   $('#abaUsados').textContent = `Usados (${usados.size})`;
 
   const main = $('#grade');
@@ -308,6 +311,7 @@ function render() {
     main.innerHTML = `<div class="mt-20 flex flex-col items-center justify-center text-center col-span-full">
       <h3 class="mt-4 text-[16px] font-bold">${aba === 'ativos' ? 'Nenhum Reels na fila' : 'Você ainda não marcou nenhum'}</h3>
       <p class="mt-1 text-[13px] text-[#425466]">${aba === 'ativos' ? 'Gravou todos ou o filtro está apertado demais.' : 'Clique em Usei quando gravar um Reels.'}</p>
+      ${aba === 'usados' ? `<button id="voltarAtivos" class="mt-5 inline-flex h-11 items-center gap-2 rounded-full bg-[#0A2540] px-6 text-[13px] font-bold text-white shadow-sm active:scale-[0.98] transition-all">\u2190 Voltar para os ativos</button>` : ''}
     </div>`;
   } else {
     main.innerHTML = mostra.map(card).join('');
@@ -330,6 +334,7 @@ document.addEventListener('click', (e) => {
   if (b.id === 'mais')  { limite += 24; render(); }
   if (b.id === 'abaAtivos') { aba = 'ativos'; limite = 24; render(); }
   if (b.id === 'abaUsados') { aba = 'usados'; limite = 24; render(); }
+  if (b.id === 'voltarAtivos') { aba = 'ativos'; limite = 24; window.scrollTo(0, 0); render(); }
   if (b.id === 'zerar') zerar();
   if (b.id === 'baixar') baixar();
   if (b.id === 'capas') baixarCapas();
